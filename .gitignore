@@ -39,3 +39,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# family health records stay on this machine
+/data/store.json
+/data/*.tmp
