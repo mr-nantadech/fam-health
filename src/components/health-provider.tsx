@@ -17,8 +17,13 @@ import { emptyStore, type ActionResult, type Store } from "@/types/health";
 
 type Notice = { severity: "success" | "error"; text: string };
 
+type HealthStatus = "loading" | "ready" | "error";
+
 type HealthContextValue = {
   store: Store;
+  status: HealthStatus;
+  loadError: string;
+  reload: () => Promise<void>;
   run: (
     action: () => Promise<ActionResult>,
     success?: string,
@@ -35,9 +40,7 @@ export function useHealth(): HealthContextValue {
 
 export function HealthProvider({ children }: { children: React.ReactNode }) {
   const [store, setStore] = useState<Store>(emptyStore);
-  const [status, setStatus] = useState<"loading" | "ready" | "error">(
-    "loading",
-  );
+  const [status, setStatus] = useState<HealthStatus>("loading");
   const [loadError, setLoadError] = useState("");
   const [notice, setNotice] = useState<Notice | null>(null);
 
@@ -81,24 +84,14 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
     [],
   );
 
-  const value = useMemo(() => ({ store, run }), [store, run]);
+  const value = useMemo(
+    () => ({ store, status, loadError, reload: load, run }),
+    [store, status, loadError, load, run],
+  );
 
   return (
     <HealthContext.Provider value={value}>
-      {status === "loading" ? (
-        <div className="flex min-h-[50vh] items-center justify-center">
-          <CircularProgress />
-        </div>
-      ) : null}
-      {status === "error" ? (
-        <div className="mx-auto flex max-w-lg flex-col items-start gap-4 px-4 py-16">
-          <Alert severity="error">{loadError}</Alert>
-          <Button variant="contained" onClick={() => void load()}>
-            ลองใหม่
-          </Button>
-        </div>
-      ) : null}
-      {status === "ready" ? children : null}
+      {children}
       <Snackbar
         open={notice != null}
         autoHideDuration={2800}
@@ -115,4 +108,29 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
       </Snackbar>
     </HealthContext.Provider>
   );
+}
+
+export function HealthStatus({ children }: { children?: React.ReactNode }) {
+  const { status, loadError, reload } = useHealth();
+
+  if (status === "loading") {
+    return (
+      <div className="flex min-h-[50vh] items-center justify-center">
+        <CircularProgress />
+      </div>
+    );
+  }
+
+  if (status === "error") {
+    return (
+      <div className="mx-auto flex max-w-lg flex-col items-start gap-4 px-4 py-16">
+        <Alert severity="error">{loadError}</Alert>
+        <Button variant="contained" onClick={() => void reload()}>
+          ลองใหม่
+        </Button>
+      </div>
+    );
+  }
+
+  return children;
 }

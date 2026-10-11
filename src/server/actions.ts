@@ -5,6 +5,7 @@ import { InputError } from "@/lib/parse";
 import {
   parseAllergy,
   parseCondition,
+  parseDmHt,
   parseMedication,
   parseMember,
   parseVaccine,
@@ -16,6 +17,7 @@ import type {
   ActionResult,
   AllergyInput,
   ConditionInput,
+  DmHtInput,
   MedicationInput,
   MemberInput,
   Store,
@@ -100,6 +102,9 @@ export async function deleteMember(id: string): Promise<ActionResult> {
     draft.vaccines = draft.vaccines.filter((item) => item.memberId !== id);
     draft.visits = draft.visits.filter((item) => item.memberId !== id);
     draft.vitals = draft.vitals.filter((item) => item.memberId !== id);
+    draft.dmHtEntries = draft.dmHtEntries.filter(
+      (item) => item.memberId !== id,
+    );
   });
 }
 
@@ -310,5 +315,41 @@ export async function deleteVital(id: string): Promise<ActionResult> {
     if (!draft.vitals.some((item) => item.id === id))
       throw new InputError("ไม่พบรายการ");
     draft.vitals = draft.vitals.filter((item) => item.id !== id);
+  });
+}
+
+export async function createDmHtEntry(
+  memberId: string,
+  input: DmHtInput,
+): Promise<ActionResult> {
+  return commit((draft) => {
+    requireMember(draft, memberId);
+    const id = randomUUID();
+    draft.dmHtEntries.push({ ...parseDmHt(input), id, memberId });
+    return { createdId: id };
+  });
+}
+
+export async function updateDmHtEntry(
+  id: string,
+  input: DmHtInput,
+): Promise<ActionResult> {
+  return commit((draft) => {
+    const index = draft.dmHtEntries.findIndex((item) => item.id === id);
+    if (index < 0) throw new InputError("ไม่พบรายการ");
+    draft.dmHtEntries[index] = {
+      ...parseDmHt(input),
+      id,
+      memberId: draft.dmHtEntries[index].memberId,
+    };
+  });
+}
+
+export async function deleteDmHtEntry(id: string): Promise<ActionResult> {
+  return commit((draft) => {
+    if (!draft.dmHtEntries.some((item) => item.id === id)) {
+      throw new InputError("ไม่พบรายการ");
+    }
+    draft.dmHtEntries = draft.dmHtEntries.filter((item) => item.id !== id);
   });
 }

@@ -4,6 +4,7 @@ import TextField from "@mui/material/TextField";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { AppSelect } from "@/components/app-select";
+import { DateField } from "@/components/date-field";
 import { EditorDialog } from "@/components/editor-dialog";
 import { useHealth } from "@/components/health-provider";
 import { createMember, updateMember } from "@/server/actions";
@@ -93,12 +94,10 @@ export function MemberDialog({
         onChange={(value) => set("bloodType", value)}
         options={BLOOD_TYPES}
       />
-      <TextField
+      <DateField
         label="วันเกิด"
-        type="date"
         value={form.birthDate}
-        onChange={(event) => set("birthDate", event.target.value)}
-        slotProps={{ inputLabel: { shrink: true } }}
+        onChange={(value) => set("birthDate", value)}
       />
       <TextField
         label="เบอร์โทร"

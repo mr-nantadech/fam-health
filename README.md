@@ -6,14 +6,17 @@
 
 - Next.js (App Router) + TypeScript
 - Tailwind CSS และ MUI
-- ข้อมูลอยู่ใน `data/store.json` บนเครื่องที่รันแอป
+- ข้อมูลอยู่ใน `fam-health.db` (SQLite) บนเครื่องที่รันแอป
 
 ## เริ่มใช้
 
 ```bash
 npm install
+npm run db:migrate
 npm run dev
 ```
+
+`npm run db:migrate` สร้างหรืออัปเดตตารางใน `fam-health.db` แอปจะรัน migration ที่ค้างให้อีกครั้งตอนเปิดฐานข้อมูล ไฟล์ใหม่อยู่ใน `src/db/migrations` โดยขึ้นต้นด้วยเลขลำดับ เช่น `002_ชื่อ.sql`
 
 เปิด [http://localhost:3000](http://localhost:3000) แล้วเพิ่มสมาชิกในบ้าน จากนั้นบันทึกโรค ประวัติแพ้ ยา วัคซีน การพบแพทย์ และสัญญาณชีพ
 

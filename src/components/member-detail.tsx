@@ -14,8 +14,9 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { ConfirmDialog } from "@/components/confirm-dialog";
-import { useHealth } from "@/components/health-provider";
+import { HealthStatus, useHealth } from "@/components/health-provider";
 import { MemberDialog } from "@/components/member-dialog";
+import { NotebookTab } from "@/components/notebook-tab";
 import { RecordList } from "@/components/record-list";
 import {
   AllergyDialog,
@@ -33,7 +34,7 @@ import {
   bloodLabel,
   compareDateDesc,
   conditionStatusLabel,
-  formatThaiDate,
+  formatDate,
   genderLabel,
   initials,
   vitalSummary,
@@ -62,11 +63,17 @@ type DeleteJob = {
   action: () => Promise<boolean>;
 };
 
-export function MemberDetail({ memberId }: { memberId: string }) {
+export function MemberDetail({
+  memberId,
+  initialBook = false,
+}: {
+  memberId: string;
+  initialBook?: boolean;
+}) {
   const router = useRouter();
-  const { store, run } = useHealth();
+  const { store, run, status } = useHealth();
   const member = store.members.find((item) => item.id === memberId);
-  const [tab, setTab] = useState(0);
+  const [tab, setTab] = useState(initialBook ? 7 : 0);
   const [editMember, setEditMember] = useState(false);
   const [deleteMemberOpen, setDeleteMemberOpen] = useState(false);
   const [conditionEditor, setConditionEditor] = useState<
@@ -88,6 +95,8 @@ export function MemberDetail({ memberId }: { memberId: string }) {
     undefined,
   );
   const [pendingDelete, setPendingDelete] = useState<DeleteJob | null>(null);
+
+  if (status !== "ready") return <HealthStatus />;
 
   if (!member) {
     return (
@@ -121,6 +130,9 @@ export function MemberDetail({ memberId }: { memberId: string }) {
   const vitals = store.vitals
     .filter((item) => item.memberId === member.id)
     .sort((a, b) => compareDateDesc(a.date, b.date));
+  const dmHtEntries = (store.dmHtEntries ?? []).filter(
+    (item) => item.memberId === member.id,
+  );
   const severe = allergies.filter((item) => item.severity === "severe");
   const age = ageFromBirth(member.birthDate);
 
@@ -220,13 +232,14 @@ export function MemberDetail({ memberId }: { memberId: string }) {
         <Tab label={`วัคซีน (${vaccines.length})`} />
         <Tab label={`พบแพทย์ (${visits.length})`} />
         <Tab label={`สัญญาณชีพ (${vitals.length})`} />
+        <Tab label={`สมุด (${dmHtEntries.length})`} />
       </Tabs>
 
       {tab === 0 ? (
         <dl className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <Info
             label="วันเกิด"
-            value={member.birthDate ? formatThaiDate(member.birthDate) : "—"}
+            value={member.birthDate ? formatDate(member.birthDate) : "—"}
           />
           <Info label="เบอร์โทร" value={member.phone || "—"} />
           <Info label="กรุ๊ปเลือด" value={bloodLabel(member.bloodType)} />
@@ -251,7 +264,7 @@ export function MemberDetail({ memberId }: { memberId: string }) {
                 <Typography variant="body2" color="text.secondary">
                   {conditionStatusLabel(item.status)}
                   {item.diagnosedOn
-                    ? ` · วินิจฉัย ${formatThaiDate(item.diagnosedOn)}`
+                    ? ` · วินิจฉัย ${formatDate(item.diagnosedOn)}`
                     : ""}
                 </Typography>
                 {item.note ? (
@@ -327,7 +340,7 @@ export function MemberDetail({ memberId }: { memberId: string }) {
                   {[item.dose, item.frequency].filter(Boolean).join(" · ") ||
                     "ไม่ระบุขนาด"}
                   {item.startDate
-                    ? ` · เริ่ม ${formatThaiDate(item.startDate)}`
+                    ? ` · เริ่ม ${formatDate(item.startDate)}`
                     : ""}
                 </Typography>
                 {item.note ? (
@@ -357,10 +370,10 @@ export function MemberDetail({ memberId }: { memberId: string }) {
                   {item.doseLabel ? ` · ${item.doseLabel}` : ""}
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
-                  {formatThaiDate(item.date)}
+                  {formatDate(item.date)}
                   {item.place ? ` · ${item.place}` : ""}
                   {item.nextDue
-                    ? ` · นัดถัดไป ${formatThaiDate(item.nextDue)}`
+                    ? ` · นัดถัดไป ${formatDate(item.nextDue)}`
                     : ""}
                 </Typography>
               </>
@@ -378,7 +391,7 @@ export function MemberDetail({ memberId }: { memberId: string }) {
             onDelete={(item) =>
               askDelete(
                 "ลบการพบแพทย์",
-                `ลบรายการวันที่ ${formatThaiDate(item.date)}?`,
+                `ลบรายการวันที่ ${formatDate(item.date)}?`,
                 () => run(() => deleteVisit(item.id), "ลบแล้ว"),
               )
             }
@@ -386,7 +399,7 @@ export function MemberDetail({ memberId }: { memberId: string }) {
               <>
                 <Typography sx={{ fontWeight: 700 }}>{item.reason}</Typography>
                 <Typography variant="body2" color="text.secondary">
-                  {formatThaiDate(item.date)}
+                  {formatDate(item.date)}
                   {item.place ? ` · ${item.place}` : ""}
                   {item.diagnosis ? ` · ${item.diagnosis}` : ""}
                 </Typography>
@@ -408,14 +421,14 @@ export function MemberDetail({ memberId }: { memberId: string }) {
             onDelete={(item) =>
               askDelete(
                 "ลบสัญญาณชีพ",
-                `ลบรายการวันที่ ${formatThaiDate(item.date)}?`,
+                `ลบรายการวันที่ ${formatDate(item.date)}?`,
                 () => run(() => deleteVital(item.id), "ลบแล้ว"),
               )
             }
             render={(item) => (
               <>
                 <Typography sx={{ fontWeight: 700 }}>
-                  {formatThaiDate(item.date)}
+                  {formatDate(item.date)}
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
                   {vitalSummary(item)}
@@ -427,6 +440,14 @@ export function MemberDetail({ memberId }: { memberId: string }) {
             )}
           />
         </Section>
+      ) : null}
+
+      {tab === 7 ? (
+        <NotebookTab
+          memberId={member.id}
+          entries={dmHtEntries}
+          initialBookOpen={initialBook}
+        />
       ) : null}
 
       {editMember ? (

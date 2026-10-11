@@ -24,7 +24,11 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <body className={`${anuphan.className} min-h-full antialiased`}>
         <ThemeRegistry>
           <AppShell>
-            <Suspense fallback={null}>
+            <Suspense
+              fallback={
+                <div className="flex min-h-[50vh] items-center justify-center" />
+              }
+            >
               <HealthProvider>{children}</HealthProvider>
             </Suspense>
           </AppShell>

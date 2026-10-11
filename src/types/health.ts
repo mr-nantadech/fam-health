@@ -137,6 +137,46 @@ export interface Vital {
   note: string;
 }
 
+export const SMOKING_OPTIONS = [
+  { value: "unknown", label: "—" },
+  { value: "never", label: "ไม่สูบ" },
+  { value: "current", label: "สูบ" },
+  { value: "quit", label: "เลิกแล้ว" },
+] as const;
+
+export const ALCOHOL_OPTIONS = [
+  { value: "unknown", label: "—" },
+  { value: "never", label: "ไม่ดื่ม" },
+  { value: "current", label: "ดื่ม" },
+  { value: "quit", label: "เลิกแล้ว" },
+] as const;
+
+export interface DmHtEntry {
+  id: string;
+  memberId: string;
+  date: string;
+  weightKg: number | null;
+  heightCm: number | null;
+  systolic: number | null;
+  diastolic: number | null;
+  pulse: number | null;
+  waistCm: number | null;
+  fbs: number | null;
+  depress2q: number | null;
+  depress8q: number | null;
+  depress9q: number | null;
+  smoking: string;
+  alcohol: string;
+  zoneDarkGreen: boolean;
+  zoneYellow: boolean;
+  zoneOrange: boolean;
+  zoneRed: boolean;
+  zoneBlack: boolean;
+  medications: string;
+  nextVisit: string;
+  examiner: string;
+}
+
 export interface Store {
   members: Member[];
   conditions: Condition[];
@@ -145,6 +185,7 @@ export interface Store {
   vaccines: Vaccine[];
   visits: Visit[];
   vitals: Vital[];
+  dmHtEntries: DmHtEntry[];
 }
 
 export type ActionResult =
@@ -213,6 +254,30 @@ export type VitalInput = {
   note: string;
 };
 
+export type DmHtInput = {
+  date: string;
+  weightKg: string;
+  heightCm: string;
+  systolic: string;
+  diastolic: string;
+  pulse: string;
+  waistCm: string;
+  fbs: string;
+  depress2q: string;
+  depress8q: string;
+  depress9q: string;
+  smoking: string;
+  alcohol: string;
+  zoneDarkGreen: boolean;
+  zoneYellow: boolean;
+  zoneOrange: boolean;
+  zoneRed: boolean;
+  zoneBlack: boolean;
+  medications: string;
+  nextVisit: string;
+  examiner: string;
+};
+
 export function emptyStore(): Store {
   return {
     members: [],
@@ -222,5 +287,6 @@ export function emptyStore(): Store {
     vaccines: [],
     visits: [],
     vitals: [],
+    dmHtEntries: [],
   };
 }

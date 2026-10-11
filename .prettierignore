@@ -5,5 +5,7 @@ build
 coverage
 *.tsbuildinfo
 data
+fam-health.db
+fam-health.db-*
 .grok
 .agents

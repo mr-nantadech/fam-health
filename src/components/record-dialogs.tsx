@@ -5,6 +5,7 @@ import Switch from "@mui/material/Switch";
 import TextField from "@mui/material/TextField";
 import { useState } from "react";
 import { AppSelect } from "@/components/app-select";
+import { DateField } from "@/components/date-field";
 import { EditorDialog } from "@/components/editor-dialog";
 import { useHealth } from "@/components/health-provider";
 import {
@@ -86,14 +87,10 @@ export function ConditionDialog({
         required
         sx={wide}
       />
-      <TextField
+      <DateField
         label="วันที่วินิจฉัย"
-        type="date"
         value={form.diagnosedOn}
-        onChange={(event) =>
-          setForm({ ...form, diagnosedOn: event.target.value })
-        }
-        slotProps={{ inputLabel: { shrink: true } }}
+        onChange={(diagnosedOn) => setForm({ ...form, diagnosedOn })}
       />
       <AppSelect
         label="สถานะ"
@@ -234,21 +231,15 @@ export function MedicationDialog({
           setForm({ ...form, frequency: event.target.value })
         }
       />
-      <TextField
+      <DateField
         label="วันเริ่ม"
-        type="date"
         value={form.startDate}
-        onChange={(event) =>
-          setForm({ ...form, startDate: event.target.value })
-        }
-        slotProps={{ inputLabel: { shrink: true } }}
+        onChange={(startDate) => setForm({ ...form, startDate })}
       />
-      <TextField
+      <DateField
         label="วันหยุด"
-        type="date"
         value={form.endDate}
-        onChange={(event) => setForm({ ...form, endDate: event.target.value })}
-        slotProps={{ inputLabel: { shrink: true } }}
+        onChange={(endDate) => setForm({ ...form, endDate })}
       />
       <FormControlLabel
         sx={wide}
@@ -316,13 +307,11 @@ export function VaccineDialog({
         required
         sx={wide}
       />
-      <TextField
+      <DateField
         label="วันที่ฉีด"
-        type="date"
         value={form.date}
-        onChange={(event) => setForm({ ...form, date: event.target.value })}
+        onChange={(date) => setForm({ ...form, date })}
         required
-        slotProps={{ inputLabel: { shrink: true } }}
       />
       <TextField
         label="เข็มที่"
@@ -337,12 +326,10 @@ export function VaccineDialog({
         onChange={(event) => setForm({ ...form, place: event.target.value })}
         sx={wide}
       />
-      <TextField
+      <DateField
         label="นัดครั้งถัดไป"
-        type="date"
         value={form.nextDue}
-        onChange={(event) => setForm({ ...form, nextDue: event.target.value })}
-        slotProps={{ inputLabel: { shrink: true } }}
+        onChange={(nextDue) => setForm({ ...form, nextDue })}
         sx={wide}
       />
     </EditorDialog>
@@ -382,13 +369,11 @@ export function VisitDialog({
         return Boolean(result?.ok);
       }}
     >
-      <TextField
+      <DateField
         label="วันที่"
-        type="date"
         value={form.date}
-        onChange={(event) => setForm({ ...form, date: event.target.value })}
+        onChange={(date) => setForm({ ...form, date })}
         required
-        slotProps={{ inputLabel: { shrink: true } }}
       />
       <TextField
         label="สถานพยาบาล"
@@ -463,13 +448,11 @@ export function VitalDialog({
         return Boolean(result?.ok);
       }}
     >
-      <TextField
+      <DateField
         label="วันที่วัด"
-        type="date"
         value={form.date}
-        onChange={(event) => set("date", event.target.value)}
+        onChange={(date) => set("date", date)}
         required
-        slotProps={{ inputLabel: { shrink: true } }}
         sx={wide}
       />
       <TextField

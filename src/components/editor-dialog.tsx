@@ -13,12 +13,14 @@ export function EditorDialog({
   onClose,
   onSubmit,
   children,
+  maxWidth = "sm",
 }: {
   open: boolean;
   title: string;
   onClose: () => void;
   onSubmit: () => Promise<boolean>;
   children: React.ReactNode;
+  maxWidth?: "sm" | "md";
 }) {
   const [busy, setBusy] = useState(false);
 
@@ -27,7 +29,7 @@ export function EditorDialog({
       open={open}
       onClose={busy ? undefined : onClose}
       fullWidth
-      maxWidth="sm"
+      maxWidth={maxWidth}
     >
       <DialogTitle>{title}</DialogTitle>
       <form

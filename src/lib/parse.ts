@@ -1,14 +1,18 @@
 import {
+  ALCOHOL_OPTIONS,
   ALLERGY_KINDS,
   ALLERGY_SEVERITIES,
   BLOOD_TYPES,
   CONDITION_STATUSES,
   GENDERS,
   RELATIONSHIPS,
+  SMOKING_OPTIONS,
   type Allergy,
   type AllergyInput,
   type Condition,
   type ConditionInput,
+  type DmHtEntry,
+  type DmHtInput,
   type Medication,
   type MedicationInput,
   type Member,
@@ -234,4 +238,62 @@ export function parseVital(input: VitalInput): Omit<Vital, "id" | "memberId"> {
   ].some((value) => value != null);
   if (!hasMeasure) throw new InputError("กรุณากรอกค่าที่วัดอย่างน้อย 1 ช่อง");
   return vital;
+}
+
+function optionalScore(
+  value: unknown,
+  label: string,
+  max: number,
+): number | null {
+  const score = optionalNumber(value, label, 0, max);
+  if (score != null && !Number.isInteger(score)) {
+    throw new InputError(`${label}ต้องเป็นจำนวนเต็ม`);
+  }
+  return score;
+}
+
+function flag(value: unknown, label: string): boolean {
+  if (typeof value !== "boolean") throw new InputError(`${label}ไม่ถูกต้อง`);
+  return value;
+}
+
+export function parseDmHt(
+  input: DmHtInput,
+): Omit<DmHtEntry, "id" | "memberId"> {
+  const systolic = optionalNumber(input.systolic, "ความดันตัวบน", 40, 260);
+  const diastolic = optionalNumber(input.diastolic, "ความดันตัวล่าง", 20, 180);
+  if (systolic != null && diastolic != null && systolic <= diastolic) {
+    throw new InputError("ความดันตัวบนต้องมากกว่าตัวล่าง");
+  }
+  return {
+    date: requiredDate(input.date, "วันที่"),
+    weightKg: optionalNumber(input.weightKg, "น้ำหนัก", 0.5, 400),
+    heightCm: optionalNumber(input.heightCm, "ส่วนสูง", 30, 250),
+    systolic,
+    diastolic,
+    pulse: optionalNumber(input.pulse, "ชีพจร", 20, 250),
+    waistCm: optionalNumber(input.waistCm, "รอบเอว", 30, 200),
+    fbs: optionalNumber(input.fbs, "FBS", 20, 800),
+    depress2q: optionalScore(input.depress2q, "2Q", 2),
+    depress8q: optionalScore(input.depress8q, "8Q", 24),
+    depress9q: optionalScore(input.depress9q, "9Q", 27),
+    smoking: oneOf(
+      input.smoking,
+      SMOKING_OPTIONS.map((item) => item.value),
+      "บุหรี่",
+    ),
+    alcohol: oneOf(
+      input.alcohol,
+      ALCOHOL_OPTIONS.map((item) => item.value),
+      "สุรา",
+    ),
+    zoneDarkGreen: flag(input.zoneDarkGreen, "เขียวแก่"),
+    zoneYellow: flag(input.zoneYellow, "เหลือง"),
+    zoneOrange: flag(input.zoneOrange, "ส้ม"),
+    zoneRed: flag(input.zoneRed, "แดง"),
+    zoneBlack: flag(input.zoneBlack, "ดำ"),
+    medications: optionalText(input.medications, "รายการยา", 1000),
+    nextVisit: optionalDate(input.nextVisit, "วันนัด"),
+    examiner: optionalText(input.examiner, "ผู้ตรวจ", 80),
+  };
 }

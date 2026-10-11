@@ -9,21 +9,6 @@ import {
   type Vital,
 } from "@/types/health";
 
-const THAI_MONTHS = [
-  "ม.ค.",
-  "ก.พ.",
-  "มี.ค.",
-  "เม.ย.",
-  "พ.ค.",
-  "มิ.ย.",
-  "ก.ค.",
-  "ส.ค.",
-  "ก.ย.",
-  "ต.ค.",
-  "พ.ย.",
-  "ธ.ค.",
-];
-
 const AVATAR_COLORS = ["#0E6B64", "#1D6A8A", "#8A4B2F", "#3F6B4E", "#6B4C7A"];
 
 export function labelOf(
@@ -33,11 +18,12 @@ export function labelOf(
   return options.find((option) => option.value === value)?.label ?? value;
 }
 
-export function formatThaiDate(iso: string): string {
+export function formatDate(iso: string): string {
   if (!iso) return "—";
-  const [year, month, day] = iso.split("-").map(Number);
-  if (!year || !month || !day || !THAI_MONTHS[month - 1]) return iso;
-  return `${day} ${THAI_MONTHS[month - 1]} ${year + 543}`;
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso);
+  if (!match) return iso;
+  const [, year, month, day] = match;
+  return `${day}/${month}/${year}`;
 }
 
 export function ageFromBirth(iso: string, today = new Date()): string {
